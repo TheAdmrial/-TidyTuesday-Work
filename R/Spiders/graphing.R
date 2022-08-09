@@ -7,7 +7,7 @@ spiders <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/ti
 # cleaning up the distribution column
 
 spiders1 <- spiders %>% 
-  separate(distribution, sep= ",", into = c("country1", "country2", 'country3', 'country4','country5','country6','country7','country8','country9','country10','country11','country12','country13','country14','country15','country16','country17','country18'), extra = 'merge')
+  separate(distribution, sep= "\\(", into = "distribution") %>% 
+  separate(distribution, sep = "[[:punct:]]|[[:punct:]](?=\\s)|(?<=\\s)[[:alpha:]]{2}(?=\\s)", into = c('country1','country2','country3','country4','country5','country6','country7','country8','country9','country10','country11'))
 
-spiders %>% 
-  str_view(distribution)
+str_view_all("Ukraine, Russia", "[:punct:](?=\\s)|(?<=\\s)[:alpha:]{2}(?=\\s)")

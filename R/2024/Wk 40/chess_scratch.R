@@ -1,6 +1,6 @@
 # 'importing' the libraries that I need
 library(tidyverse)
-
+library(ggthemes)
 #Some reading up on Chess is needed
 # Here is an article about chess notation: https://www.chess.com/article/view/chess-notation
 # Here is an article about opening names, codes, and their explanation: https://www.365chess.com/eco.php
@@ -138,8 +138,61 @@ opening_moves_by_rank_black <- chess_dat %>%
           , desc(count_of_opening_moves)) # %>% 
   # View()
 # 2. How many turns does a game last based on player ranking? 
+
 # 3. what move patterns explain the game outcome? 
   
+#### Making a graph for both white and black
+# TODO: color the top 5 values
+# TODO: Log scale the Y-axis
+top_moves <- c('e4' = '#1b9e77'
+               , 'd4' = '#d95f02'
+               , 'c4' = '#7570b3'
+               , 'Nf3' = '#e7298a'
+               , 'e3' = '#66a61e'
+               , 'b3' = '#e6ab02'
+               , 'g3' = '#a6761d')
+opening_moves_by_rank_white %>% 
+  ggplot(aes(x = reorder(opening_move, desc(count_of_opening_moves))
+             , y = count_of_opening_moves
+             , fill = opening_move)
+         ) +
+  geom_col() + 
+  facet_wrap(~international_title_white) +
+  labs(
+    title = 'Most Common First Moves by White by Rank'
+    , subtitle = 'These are the most common first moves made by white. \nThe rankings are based on the players white_rank.'
+    , x = 'Chess Move (Chess Notation)'
+    , y = 'Count of Chess Moves (log scaled)'
+    , fill = 'Top 7 Moves'
+    , caption = 'I logarithmically scaled the y-axis to show the comparitive count of\nchess moves across ranks. I also colored the most common moves\nmade to make them easy to identify.'
+  ) +
+  scale_y_continuous(trans='log10')+
+  scale_fill_manual(values=top_moves)+
+  guides(x = guide_axis(angle = 90))
 
-
-  
+### Making a graph for the first responding move (black)
+top_moves <- c('e4' = '#1b9e77'
+               , 'd4' = '#d95f02'
+               , 'c4' = '#7570b3'
+               , 'Nf3' = '#e7298a'
+               , 'e3' = '#66a61e'
+               , 'b3' = '#e6ab02'
+               , 'g3' = '#a6761d')
+opening_moves_by_rank_black %>% 
+  ggplot(aes(x = reorder(opening_move, desc(count_of_opening_moves))
+             , y = count_of_opening_moves
+             , fill = opening_move)
+  ) +
+  geom_col() + 
+  facet_wrap(~international_title_white) +
+  labs(
+    title = 'Most Common First Moves by White by Rank'
+    , subtitle = 'These are the most common first moves made by white. \nThe rankings are based on the players white_rank.'
+    , x = 'Chess Move (Chess Notation)'
+    , y = 'Count of Chess Moves (log scaled)'
+    , fill = 'Top 7 Moves'
+    , caption = 'I logarithmically scaled the y-axis to show the comparitive count of chess moves across ranks. I also colored the most common moves made to make them easy to identify.'
+  ) +
+  scale_y_continuous(trans='log10')+
+  scale_fill_manual(values=top_moves)+
+  guides(x = guide_axis(angle = 90))

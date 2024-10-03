@@ -63,9 +63,12 @@ imo_country_data %>%
   geom_line(aes(color = country, group = country)) +
   scale_fill_manual(values=top_countries) +
   theme_minimal() +
+  # scale_x_continuous('year', breaks = 36) +
   labs(title = "International Mathematic Olymipad (IMO) Total Scores Over Time by Country"
        , x = "Year"
        , y = "IMO Total Score"
        , color = "Country"
-       , caption = "The total score was calculated by assigning 4, 3, 2, and 1 point values\nto the number of Gold, Silver, Bronze, and Honorable Mentions won.\nThis was an arbitrary value assignment.")
+       , caption = "The total score was calculated by assigning 4, 3, 2, and 1 point values
+       \nto the number of Gold, Silver, Bronze, and Honorable Mentions won.
+       \nThis was an arbitrary value assignment.")
 

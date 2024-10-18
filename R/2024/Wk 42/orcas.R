@@ -51,7 +51,7 @@ orcas %>%
   ) %>%
   # just some string cleaning
   mutate(
-    pods_or_ecotype = str_trim(pods_or_ecotype)
+    pods_or_ecotype = str_squish(pods_or_ecotype)
     , pods_or_ecotype = str_remove(pods_or_ecotype, regex('Pod|pod|pods|Pods'))
     , pods_or_ecotype = str_remove(pods_or_ecotype, regex("'s"))
     , pods_or_ecotype = str_to_title(pods_or_ecotype)
@@ -65,23 +65,84 @@ orcas %>%
     total_encounter_duration = sum(duration_mins)
   ) %>% 
   mutate(
-    duration_rank = min_rank(total_encounter_duration)  
+    duration_rank = min_rank(total_encounter_duration)
+    # , total_encounter_duration = as.numeric(total_encounter_duration, units = 'minutes')
   ) %>% 
   ungroup() %>% 
   filter(
-    duration_rank %in% c(1)
+    duration_rank %in% c(1, 2)
   ) %>% 
-  ggplot(aes(color = pods_or_ecotype)) +
-  geom_text_wordcloud(aes(label = pods_or_ecotype), size = 7) +
-  # geom_text_wordcloud_area(aes(label = total_encounter_duration), nudge_y = 15 , size = 7)+
-  facet_wrap(~year) +
-  theme_solarized(light = FALSE) 
+  mutate(
+    pods_or_ecotype = str_squish(pods_or_ecotype)
+  ) %>% 
+  ggplot(aes(x = year, y = total_encounter_duration, fill = pods_or_ecotype, group = pods_or_ecotype))+
+  geom_col(position = 'dodge') +
+  theme_solarized(light = FALSE) +
+  # scale_y_continuous(trans='log10') +
+  labs(
+    title = 'Pods or Ecotypes with the Longest Encounter Duration Across the Years'
+    , x = "Year"
+    , y = "Enconter Duration (minutes)"
+    , fill = 'Pods or Ecotype'
+  )
+  # ggplot(aes(color = pods_or_ecotype)) +
+  # geom_text_wordcloud(aes(label = pods_or_ecotype), size = 7) +
+  # # geom_text_wordcloud_area(aes(label = total_encounter_duration), nudge_y = 15 , size = 7)+
+  # facet_wrap(~year) +
+  # theme_solarized(light = FALSE) 
 
 # Are there trends in where orca encounters occur over time?
+orcas %>% 
+  filter(
+    !is.na(location)
+    , !is.na(begin_latitude)
+    , !is.na(year)
+    ) %>% 
+  separate_longer_delim(
+    cols = location
+    , delim = regex(',|[:space:]and[:space:]|/')
+  ) %>%
+  mutate(
+    location = str_trim(location)
+    , location = str_to_title(location)
+  ) %>% 
+  group_by(year, location) %>% 
+  summarize(
+    total_counts = n()
+  ) %>% 
+  filter(
+    location %in% c("Boundary Pass"
+                    , 'Haro Strait'
+                    , 'San Juan Channel'
+                    , 'Spieden Channel'
+                    , 'Strait Of Juan De Fuca')
+  ) %>% 
+  arrange(year, desc(total_counts)) %>% 
+  ggplot(aes(x = year, y = total_counts, color = location))+
+  geom_line()+
+  geom_point()+ 
+  labs(
+    title = 'Encounters per Location Across the Years'
+    , x = 'Year'
+    , y = 'Total Encounter (Count)'
+    , color = 'Location'
+  )
+
+# nubmer of total encounters across the years
+
+orcas %>% 
+  group_by(year) %>% 
+  filter(
+    !is.na(encounter_number)
+    , !is.na(year)
+  ) %>% 
+  summarize(
+    total_encounters = max(encounter_number)
+  ) %>% 
+  ggplot(aes(x = year, y = total_encounters)) + 
+  geom_line() +
+  geom_point() +
+  expand_limits(y = 0)
 
 
-# Which Orca/orcas was/were most commonly encountered? 
 
-
-
-# Which other Orcas were also 'friendly'(Encountered most often)? 
